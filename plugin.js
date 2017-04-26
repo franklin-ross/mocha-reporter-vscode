@@ -1,7 +1,9 @@
 'use strict';
 const fs = require("fs");
 
-exports = module.exports = function mochaTscReporter (runner) {
+const pluginError = console.error.bind(console, "mocha-reporter-vscode");
+
+exports = module.exports = function mochaReporterVscode (runner) {
   let passes = 0;
   let pending = 0;
   let failures = 0;
@@ -41,52 +43,62 @@ exports = module.exports = function mochaTscReporter (runner) {
     const location = findLocation(test);
 
     const message = [];
-    if (prefix) {
-      message.push(prefix);
+    try {
+      if (prefix) {
+        message.push(prefix);
+      }
+      if (test.err) {
+        message.push(`${test.err.message || test.err.toString()} in`);
+      }
+      const name = [test.title];
+      let parent = test.parent;
+      while (parent) {
+        name.push(parent.title);
+        parent = parent.parent;
+      }
+      name.reverse();
+      message.push(... name);
+    } catch(ex) {
+      pluginError("error", ex);
     }
-    if (test.err) {
-      message.push(`${test.err.message || test.err.toString()} in`);
-    }
-    const name = [test.title];
-    let parent = test.parent;
-    while (parent) {
-      name.push(parent.title);
-      parent = parent.parent;
-    }
-    name.reverse();
-    message.push(... name);
 
     return `${test.file}(${location}):${severity}:${message.join(" ")}`;
   }
 
   function findLocation(test) {
-    let location = null;
-    const stack = test.err && (test.err.stack || test.err.message);
-    if (stack != null) {
-      const match = /(\d+)[,;:](\d+)/.exec(stack);
-      if (match.length > 0) {
-        location = `${match[1]},${match[2]}`;
+    try {
+      let location = null;
+      const stack = test.err && (test.err.stack || test.err.message);
+      if (stack != null) {
+        const match = /(\d+)[,;:](\d+)/.exec(stack);
+        if (match.length > 0) {
+          location = `${match[1]},${match[2]}`;
+        }
       }
+      if (location == null && test.body) {
+        const file = getFileContents(test.file);
+        const testBody = test.body.replace(/\r\n|\r/g, "\n");
+        const i = file.indexOf(testBody);
+        location = getLocationInFile(file, i);
+      }
+      if (location == null && test.title) {
+        const file = getFileContents(test.file);
+        const i = file.indexOf(test.title);
+        location = getLocationInFile(file, i);
+      }
+      return location || "0,0";
     }
-    if (location == null && test.body) {
-      const file = getFileContents(test.file);
-      const testBody = test.body.replace(/\r\n|\r/g, "\n");
-      const i = file.indexOf(testBody);
-      location = getLocationInFile(file, i);
+    catch (ex) {
+      pluginError("error", ex);
+      return "0,0"
     }
-    if (location == null && test.title) {
-      const file = getFileContents(test.file);
-      const i = file.indexOf(test.title);
-      location = getLocationInFile(file, i);
-    }
-    return location || "0,0";
 
     function getLocationInFile(fileContents, position) {
-      if (fileContents && position >= 0) {
-        const matches = fileContents.substr(0, position).match(/\n/g);
-        const col = matches.length + 1; //Col is 1 based.
-        return `${col},0`;
+        if (fileContents && position >= 0) {
+          const matches = fileContents.substr(0, position).match(/\n/g);
+          const col = matches.length + 1; //Col is 1 based.
+          return `${col},0`;
+        }
       }
-    }
   }
 }

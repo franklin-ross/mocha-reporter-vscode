@@ -1,6 +1,6 @@
 {
   "name": "mocha-reporter-vscode",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Formats mocha output in a way that is easy to parse using VSCode problem matchers, including line and column numbers.",
   "main": "plugin.js",
   "author": "Franklin Ross <fhross@gmail.com>",
