@@ -4,14 +4,24 @@
 
 Outputs results from mocha in a way that's easy to consume using VSCode's problem matchers. Includes searching into stack traces and source files to find line and column numbers where possible.
 
-**Run mocha tests**
+**Install**
+
+```
+npm install --save-dev https://github.com/franklin-ross/mocha-reporter-vscode
+```
+
+**Add to mocha command as reporter**
 
 ```
 mocha --reporter mocha-reporter-vscode
 ```
 
-**Sample VSCode task**
+**Run using a VSCode task**
+
+Assuming there is an npm script named "test" which runs mocha with this reporter.
+
 ```
+//tasks.json
 {
   // See https://go.microsoft.com/fwlink/?LinkId=733558
   // for the documentation about the tasks.json format
