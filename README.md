@@ -20,7 +20,7 @@ mocha --reporter mocha-reporter-vscode
 
 Assuming there is an npm script named "test" which runs mocha with this reporter.
 
-```json
+```javascript
 //tasks.json
 {
   // See https://go.microsoft.com/fwlink/?LinkId=733558
