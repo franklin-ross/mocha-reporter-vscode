@@ -32,7 +32,8 @@ Assuming there is an npm script named "test" which runs mocha with this reporter
   "tasks": [
     {
       "taskName": "test",
-      "showOutput": "never",
+      "args": ["run", "test"],
+      "isTestCommand": true,
       "problemMatcher": {
         "owner": "mocha",
         "fileLocation": [ "absolute" ],
@@ -42,6 +43,26 @@ Assuming there is an npm script named "test" which runs mocha with this reporter
             "location": 2,
             "severity": 3,
             "message": 4
+        }
+      }
+    },
+    {
+      "taskName": "test-watch",
+      "args": ["run", "test-watch"],
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "mocha",
+        "fileLocation": [ "absolute" ],
+        "pattern": {
+            "regexp": "^\\s*([^\\(]+)\\((\\d+,\\d+)\\):\\s*(error|warning|info):\\s*(.*)$",
+            "file": 1,
+            "location": 2,
+            "severity": 3,
+            "message": 4
+        },
+        "watching": {
+          "beginsPattern": "^mocha start$",
+          "endsPattern": "^mocha end"
         }
       }
     }
